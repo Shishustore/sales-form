@@ -13,11 +13,15 @@
         h1, h2 {
             color: #333;
         }
-        input, select, button {
+        input, select, button, textarea {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
             box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            height: 80px;
         }
         button {
             background-color: #4CAF50;
@@ -98,11 +102,14 @@
         <option value="card">Card</option>
     </select>
     
+    <!-- Remarks -->
+    <textarea id="remarks" placeholder="Enter any remarks (optional)"></textarea>
+    
     <!-- Confirm Order -->
     <button id="confirm-order">Confirm Order</button>
     
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcT_A288bKlgiXevlZW7PsG1kjKkNAz0Ryei46YwGQsXjx6xQUqDYJMNkm8HhH0pFL/exec'; // Replace with your Google Apps Script web app URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/your-script-id/exec'; // Replace with your Google Apps Script web app URL
         let products = [];
         let productMap = {};
         let orderItems = [];
@@ -159,7 +166,7 @@
             const orderItemsDiv = document.getElementById('order-items');
             orderItemsDiv.innerHTML = orderItems.map((item, index) => `<div class="order-item">${item.productName}, ${item.size} - ${item.price} <button class="remove-btn" onclick="removeItem(${index})">Remove</button></div>`).join('');
             const subtotal = orderItems.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+            document.getElementAd('subtotal').textContent = subtotal.toFixed(2);
             updateTotal();
         }
         
@@ -189,11 +196,13 @@
             }
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             const total = parseFloat(document.getElementById('total').textContent);
+            const remarks = document.getElementById('remarks').value; // Get remarks value
             const data = {
                 products: orderItems,
                 discount: discount,
                 total: total,
-                paymentMethod: paymentMethod
+                paymentMethod: paymentMethod,
+                remarks: remarks // Include remarks in the data
             };
             fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -210,6 +219,7 @@
                 document.getElementById('payment-method').value = '';
                 document.getElementById('product-search').value = '';
                 document.getElementById('size-select').innerHTML = '<option value="">Select Size</option>';
+                document.getElementById('remarks').value = ''; // Clear remarks field
             })
             .catch(error => console.error('Error submitting order:', error));
         });
